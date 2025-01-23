@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Router } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard.jsx";
 import ProductsPage from "./pages/ProductsPage.jsx";
 import ReportsPage from "./pages/ReportsPage.jsx";
