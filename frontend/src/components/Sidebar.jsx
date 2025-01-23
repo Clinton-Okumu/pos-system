@@ -1,22 +1,37 @@
-// src/components/Sidebar.jsx
 import React from "react";
 
 const Sidebar = () => {
   return (
-    <div className="w-64 h-screen bg-gray-800 text-white flex flex-col">
-      <div className="p-4 text-lg font-bold">POS System</div>
+    <div className="w-64 h-screen bg-gray-900 text-gray-100 flex flex-col">
+      {/* Branding */}
+      <div className="p-6 text-2xl font-extrabold text-white">POS System</div>
+
+      {/* Navigation */}
       <ul className="flex-grow">
-        <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">
-          Dashboard
+        <li className="px-6 py-3 hover:bg-gray-800 hover:text-white cursor-pointer transition flex items-center space-x-3">
+          <i className="fas fa-home"></i>
+          <span>Dashboard</span>
         </li>
-        <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">Products</li>
-        <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">Sales</li>
-        <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">
-          Customers
+        <li className="px-6 py-3 hover:bg-gray-800 hover:text-white cursor-pointer transition flex items-center space-x-3">
+          <i className="fas fa-box"></i>
+          <span>Products</span>
         </li>
-        <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">Reports</li>
+        <li className="px-6 py-3 hover:bg-gray-800 hover:text-white cursor-pointer transition flex items-center space-x-3">
+          <i className="fas fa-dollar-sign"></i>
+          <span>Sales</span>
+        </li>
+        <li className="px-6 py-3 hover:bg-gray-800 hover:text-white cursor-pointer transition flex items-center space-x-3">
+          <i className="fas fa-users"></i>
+          <span>Customers</span>
+        </li>
+        <li className="px-6 py-3 hover:bg-gray-800 hover:text-white cursor-pointer transition flex items-center space-x-3">
+          <i className="fas fa-chart-line"></i>
+          <span>Reports</span>
+        </li>
       </ul>
-      <div className="p-4 text-sm">© 2025 POS System</div>
+
+      {/* Footer */}
+      <div className="p-6 text-sm text-gray-400">© 2025 POS System</div>
     </div>
   );
 };
