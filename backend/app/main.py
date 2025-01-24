@@ -1,15 +1,20 @@
 from fastapi import FastAPI
-from app.core.database import initialize_database
-from app.products.routes import router as products_router
+from app.core.database import Base, engine
+from app.apps.products.models import Product
+from app.apps.products.routers import router as product_router
 
 # Initialize the FastAPI app
-app = FastAPI()
+app = FastAPI(
+    title="POS System", description="A POS system for a cereal shop.", version="1.0.0"
+)
 
-# Call the database initializer
-initialize_database()
-app.include_router(products_router, prefix="/products")
+# Create database tables
+Base.metadata.create_all(bind=engine)
+
+# Include routers
+app.include_router(product_router, prefix="/products", tags=["Products"])
 
 
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to  POS system!"}
+def root():
+    return {"message": "POS system is running!"}
