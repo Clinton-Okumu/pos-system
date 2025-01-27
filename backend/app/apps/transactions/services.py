@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from app.transactions.models import Transaction
-from app.products.models import Product
-from app.transactions.schemas import TransactionCreate
+from app.apps.transactions.models import Transaction
+from app.apps.products.models import Product
+from app.apps.transactions.schemas import TransactionCreate
 
 
 def create_transaction(db: Session, transaction_data: TransactionCreate):
@@ -20,8 +20,8 @@ def create_transaction(db: Session, transaction_data: TransactionCreate):
     total_price = product.price * transaction_data.quantity
 
     # Deduct the stock
-    product.quantity -= transaction_data.quantity
-    db.add(product)
+    product.quantity -= transaction_data.quantity  # ORM object modification
+    db.add(product)  # Register the updated product in the session
 
     # Create a new transaction record
     transaction = Transaction(
@@ -29,9 +29,9 @@ def create_transaction(db: Session, transaction_data: TransactionCreate):
         quantity=transaction_data.quantity,
         total_price=total_price,
     )
-    db.add(transaction)
-    db.commit()
-    db.refresh(transaction)
+    db.add(transaction)  # Add the transaction to the session
+    db.commit()  # Commit both changes
+    db.refresh(transaction)  # Refresh the transaction object with the committed state
 
     return transaction
 
