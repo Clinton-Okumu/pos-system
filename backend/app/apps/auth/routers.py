@@ -92,3 +92,29 @@ def refresh_token(refresh_token: str):
 
     access_token = create_access_token({"sub": payload["sub"], "role": payload["role"]})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.delete("/delete-superuser/{username}")
+def delete_superuser(
+    username: str,
+    current_user: User = Depends(require_role("superadmin")),
+    db: Session = Depends(get_db),
+):
+    # Prevent self-deletion
+    if current_user.username == username:
+        raise HTTPException(
+            status_code=400, detail="You cannot delete your own account."
+        )
+
+    # Fetch the superuser to delete by username
+    superuser = (
+        db.query(User).filter(User.username == username, User.role == "admin").first()
+    )
+    if not superuser:
+        raise HTTPException(status_code=404, detail="Superuser not found.")
+
+    # Soft delete: Mark as inactive (optional)
+    superuser.is_active = False  # Assuming `is_active` column is added for soft delete
+    db.commit()
+
+    return {"message": f"Superuser with username '{username}' has been deactivated."}

@@ -1,20 +1,23 @@
 from fastapi import FastAPI
 from app.core.database import Base, engine
-from app.apps.products.models import Product
-from app.apps.products.routers import router as product_router
+from app.apps.auth.routers import router as auth_router
+from app.apps.products.routers import router as products_router
 
 # Initialize the FastAPI app
 app = FastAPI(
-    title="POS System", description="A POS system for a cereal shop.", version="1.0.0"
+    title="POS System",
+    description="A POS system for a cereal shop with authentication functionality.",
+    version="1.0.0",
 )
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-# Include routers
-app.include_router(product_router, prefix="/products", tags=["Products"])
+# Include the auth router
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(products_router, prefix="/products", tags=["Products"])
 
 
 @app.get("/")
 def root():
-    return {"message": "POS system is running!"}
+    return {"message": "POS system with authentication is running!"}
