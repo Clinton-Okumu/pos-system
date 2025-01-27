@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.core.database import Base, engine
 from app.apps.auth.routers import router as auth_router
 from app.apps.products.routers import router as products_router
+from app.apps.transactions.routers import router as transactions_router
+from app.apps.reports.routers import router as reports_router
 
 # Initialize the FastAPI app
 app = FastAPI(
@@ -16,6 +18,8 @@ Base.metadata.create_all(bind=engine)
 # Include the auth router
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(products_router, prefix="/products", tags=["Products"])
+app.include_router(transactions_router, prefix="/transactions", tags=["Transactions"])
+app.include_router(reports_router, prefix="/reports", tags=["Reports"])
 
 
 @app.get("/")
