@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, DECIMAL, TIMESTAMP, func
 from app.core.database import Base
+from sqlalchemy.orm import relationship
 
 
 class Product(Base):
@@ -13,3 +14,5 @@ class Product(Base):
     image_url = Column(String, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    transactions = relationship("Transaction", back_populates="product")

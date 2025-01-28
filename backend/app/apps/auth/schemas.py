@@ -10,6 +10,11 @@ class UserCreate(UserBase):
     password: str
 
 
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
 class UserResponse(UserBase):
     id: int
 

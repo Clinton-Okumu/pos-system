@@ -4,6 +4,8 @@ from app.apps.auth.routers import router as auth_router
 from app.apps.products.routers import router as products_router
 from app.apps.transactions.routers import router as transactions_router
 from app.apps.reports.routers import router as reports_router
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Initialize the FastAPI app
 app = FastAPI(
@@ -12,6 +14,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Create database tables
 Base.metadata.create_all(bind=engine)
 

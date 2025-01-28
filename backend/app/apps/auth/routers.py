@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordBearer
 from app.core.database import get_db
 from app.apps.auth.models import User
-from app.apps.auth.schemas import UserCreate, UserResponse
+from app.apps.auth.schemas import UserCreate, UserResponse, LoginRequest
 from app.utils.utils import hash_password, verify_password
 from app.utils.jwt import create_access_token, decode_access_token
 from app.utils.dependencies import require_role
@@ -46,14 +46,18 @@ def add_shopkeeper(user: UserCreate, db: Session = Depends(get_db)):
 
 # Login for all users (admin and shopkeeper)
 @router.post("/login")
-def login(username: str, password: str, db: Session = Depends(get_db)):
+def login(login_data: LoginRequest, db: Session = Depends(get_db)):
+    # Extract username and password from the body
+    username = login_data.username
+    password = login_data.password
+
     # Query the database for the user
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     # Verify the password
-    hashed_password = str(user.password)  # Ensure it’s treated as a string
+    hashed_password = str(user.password)
     if not verify_password(password, hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
