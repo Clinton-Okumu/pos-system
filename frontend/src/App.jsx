@@ -21,6 +21,9 @@ const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Root path redirects to login page */}
+        <Route path="/" element={<Navigate to="/login" />} />
+
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
 

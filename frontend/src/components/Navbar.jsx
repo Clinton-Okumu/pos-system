@@ -1,6 +1,27 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/authService.js";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      // Call the logout function
+      await logoutUser();
+
+      // Remove the token from localStorage
+      localStorage.removeItem("token");
+
+      // Redirect to the login page
+      navigate("/login");
+    } catch (error) {
+      // Handle any errors that occur during logout
+      console.error("Error logging out:", error);
+      // Optionally, show an error message to the user
+    }
+  };
+
   return (
     <div className="h-16 bg-white shadow-md flex items-center justify-between px-6">
       {/* Branding */}
@@ -24,6 +45,15 @@ const Navbar = () => {
           <span className="hidden md:block text-gray-700 font-medium group-hover:text-blue-500">
             Profile
           </span>
+        </button>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="flex items-center space-x-2 group text-red-500 font-medium hover:text-red-700"
+        >
+          <i className="fas fa-sign-out-alt"></i>
+          <span className="hidden md:block">Logout</span>
         </button>
       </div>
     </div>
