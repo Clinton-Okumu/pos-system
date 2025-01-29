@@ -1,0 +1,20 @@
+/* modalStyles.css */
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 400px;
+  max-width: 100%;
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
