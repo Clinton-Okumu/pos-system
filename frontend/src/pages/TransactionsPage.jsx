@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Dialog } from "@/components/ui/dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/Dialog.jsx";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/Card.jsx";
+import { Input } from "../components/ui/Input.jsx";
+import { Button } from "../components/ui/Button.jsx";
 import { Plus, Edit2, Trash2, Search, AlertCircle } from "lucide-react";
 
 const TransactionsPage = () => {

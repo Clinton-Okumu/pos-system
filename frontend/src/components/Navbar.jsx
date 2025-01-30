@@ -1,17 +1,19 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, LogOut } from "lucide-react";
+import { logoutUser } from "../services/authService.js";
+import PropTypes from "prop-types"; // Import PropTypes
 
-const Navbar = ({ logoutUser }) => {
+const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      await logoutUser();
-      localStorage.removeItem("token");
-      navigate("/login");
+      await logoutUser(); // Call the logout function
+      localStorage.removeItem("token"); // Remove token from localStorage
+      navigate("/login"); // Redirect to login page
     } catch (error) {
-      console.error("Error logging out:", error);
+      console.log("Error logging out:", error); // Handle error
     }
   };
 
@@ -51,6 +53,11 @@ const Navbar = ({ logoutUser }) => {
       </div>
     </div>
   );
+};
+
+// PropTypes validation
+Navbar.propTypes = {
+  logoutUser: PropTypes.func.isRequired, // Validate logoutUser as a required function
 };
 
 export default Navbar;
