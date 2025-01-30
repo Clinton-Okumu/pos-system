@@ -1,109 +1,83 @@
 import React from "react";
-import {
-  DollarSign,
-  Box,
-  Users,
-  BarChart2,
-  TrendingUp,
-  ShoppingCart,
-} from "lucide-react";
+import { DollarSign, Box, ShoppingCart, TrendingUp } from "lucide-react";
 
 const Dashboard = () => {
+  const statsCards = [
+    {
+      title: "Total Sales",
+      value: "ksh. 15,000",
+      icon: DollarSign,
+      color: "blue",
+    },
+    {
+      title: "Total Transactions",
+      value: "250",
+      icon: ShoppingCart,
+      color: "green",
+    },
+    {
+      title: "Top Selling Product",
+      value: "Cornflakes",
+      icon: Box,
+      color: "yellow",
+    },
+    {
+      title: "Stock Availability",
+      value: "5 Items Low",
+      icon: TrendingUp,
+      color: "red",
+    },
+  ];
+
+  const recentActivity = [
+    { text: "Sale completed - Order #1234", value: "+$1,200", color: "green" },
+    { text: "New customer signed up", value: "+1", color: "blue" },
+    { text: "Payment pending - Order #5678", value: "-$340", color: "red" },
+  ];
+
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Page Header */}
-      <h1 className="text-3xl font-extrabold text-gray-800 mb-6">
-        Dashboard Overview
-      </h1>
-
+    <div className="pt-16 p-6">
       {/* Statistics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {/* Total Sales Card */}
-        <div className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-600">Total Sales</h2>
-            <DollarSign size={30} className="text-blue-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        {statsCards.map(({ title, value, icon: Icon, color }) => (
+          <div
+            key={title}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-medium text-gray-600">{title}</h2>
+              <Icon className={`h-5 w-5 text-${color}-500`} />
+            </div>
+            <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
           </div>
-          <p className="text-4xl font-extrabold text-blue-600 mt-2">
-            ksh. 15,000
-          </p>
-        </div>
+        ))}
+      </div>
 
-        {/* Total Transactions Card */}
-        <div className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-600">
-              Total Transactions
-            </h2>
-            <ShoppingCart size={30} className="text-green-600" />
-          </div>
-          <p className="text-4xl font-extrabold text-green-600 mt-2">250</p>
-        </div>
-
-        {/* Top Selling Products Card */}
-        <div className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-600">
-              Top Selling Product
-            </h2>
-            <Box size={30} className="text-yellow-500" />
-          </div>
-          <p className="text-4xl font-extrabold text-yellow-500 mt-2">
-            Cornflakes
-          </p>
-        </div>
-
-        {/* Stock Availability Card */}
-        <div className="bg-white shadow-lg rounded-xl p-6 hover:shadow-xl transition-shadow">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-600">
-              Stock Availability
-            </h2>
-            <TrendingUp size={30} className="text-red-600" />
-          </div>
-          <p className="text-4xl font-extrabold text-red-600 mt-2">
-            5 Items Low
-          </p>
+      {/* Sales Trend */}
+      <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          Sales Trend
+        </h2>
+        <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+          <p className="text-gray-500">Graph Showing Sales Trend Over Time</p>
         </div>
       </div>
 
-      {/* Sales Trend Section */}
-      <div className="mt-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Sales Trend</h2>
-        <div className="bg-white shadow-lg rounded-xl p-6">
-          <div className="h-64 bg-blue-100 flex justify-center items-center rounded-xl">
-            <BarChart2 size={50} className="text-blue-500" />
-            <p className="text-gray-600 text-xl font-semibold mt-4">
-              Graph Showing Sales Trend Over Time
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Activity Section */}
-      <div className="mt-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+      {/* Recent Activity */}
+      <div className="bg-white rounded-xl shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
           Recent Activity
         </h2>
-        <div className="bg-white shadow-lg rounded-xl p-6">
-          <ul className="space-y-4">
-            <li className="flex items-center justify-between">
-              <span className="text-gray-600">
-                Sale completed - Order #1234
-              </span>
-              <span className="text-green-600 font-semibold">+ $1,200</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-gray-600">New customer signed up</span>
-              <span className="text-blue-600 font-semibold">+ 1</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-gray-600">
-                Payment pending - Order #5678
-              </span>
-              <span className="text-red-600 font-semibold">- $340</span>
-            </li>
-          </ul>
+        <div className="space-y-4">
+          {recentActivity.map(({ text, value, color }) => (
+            <div
+              key={text}
+              className="flex items-center justify-between py-2 border-b border-gray-100"
+            >
+              <span className="text-gray-600">{text}</span>
+              <span className={`text-${color}-600 font-medium`}>{value}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

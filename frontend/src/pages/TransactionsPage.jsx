@@ -94,7 +94,7 @@ const TransactionsPage = () => {
 
   return (
     <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Transactions</h1>
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">Sales</h1>
 
       {/* Button to Add Sale */}
       <button

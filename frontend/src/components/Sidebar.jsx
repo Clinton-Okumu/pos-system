@@ -1,73 +1,40 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Box, DollarSign, Users, BarChart2 } from "lucide-react";
+import { BarChart2, ShoppingCart, Box, TrendingUp } from "lucide-react";
 
 const Sidebar = () => {
+  const navItems = [
+    { icon: BarChart2, text: "Dashboard", path: "/dashboard" },
+    { icon: ShoppingCart, text: "Sales", path: "/transactions" },
+    { icon: Box, text: "Products", path: "/products" },
+    { icon: TrendingUp, text: "Reports", path: "/reports" },
+  ];
+
   return (
-    <div className="h-screen w-64 bg-gray-900 text-gray-100 flex flex-col transition-all">
-      {/* Branding */}
-      <div className="p-6 text-2xl font-extrabold text-white text-center">
+    <div className="fixed left-0 top-0 h-full w-64 bg-gray-900 text-gray-100 flex flex-col z-30">
+      <div className="p-6 text-2xl font-extrabold text-white text-center border-b border-gray-800">
         POS System
       </div>
 
-      {/* Navigation */}
-      <ul className="flex-grow">
-        <li className="px-6 py-3">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              `flex items-center space-x-3 hover:bg-gray-800 hover:text-white cursor-pointer transition-all ${
-                isActive ? "bg-gray-700" : ""
-              }`
-            }
-          >
-            <Home size={20} />
-            <span>Dashboard</span>
-          </NavLink>
-        </li>
-        <li className="px-6 py-3">
-          <NavLink
-            to="/transactions"
-            className={({ isActive }) =>
-              `flex items-center space-x-3 hover:bg-gray-800 hover:text-white cursor-pointer transition-all ${
-                isActive ? "bg-gray-700" : ""
-              }`
-            }
-          >
-            <DollarSign size={20} />
-            <span>Sales</span>
-          </NavLink>
-        </li>
-        <li className="px-6 py-3">
-          <NavLink
-            to="/products"
-            className={({ isActive }) =>
-              `flex items-center space-x-3 hover:bg-gray-800 hover:text-white cursor-pointer transition-all ${
-                isActive ? "bg-gray-700" : ""
-              }`
-            }
-          >
-            <Box size={20} />
-            <span>Products</span>
-          </NavLink>
-        </li>
-        <li className="px-6 py-3">
-          <NavLink
-            to="/reports"
-            className={({ isActive }) =>
-              `flex items-center space-x-3 hover:bg-gray-800 hover:text-white cursor-pointer transition-all ${
-                isActive ? "bg-gray-700" : ""
-              }`
-            }
-          >
-            <BarChart2 size={20} />
-            <span>Reports</span>
-          </NavLink>
-        </li>
+      <ul className="flex-grow space-y-1 px-3 py-4">
+        {navItems.map(({ icon: Icon, text, path }) => (
+          <li key={path}>
+            <NavLink
+              to={path}
+              className={({ isActive }) =>
+                `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive ? "bg-gray-700" : "hover:bg-gray-800"
+                }`
+              }
+            >
+              <Icon size={20} />
+              <span>{text}</span>
+            </NavLink>
+          </li>
+        ))}
       </ul>
 
-      {/* Footer */}
-      <div className="p-6 text-sm text-gray-400 text-center">
+      <div className="p-4 text-sm text-gray-400 text-center border-t border-gray-800">
         © 2025 Cereal Shop POS
       </div>
     </div>
