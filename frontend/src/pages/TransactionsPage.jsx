@@ -1,250 +1,262 @@
 import React, { useState, useEffect } from "react";
-import Modal from "react-modal";
-import {
-  getTransactionsByProduct,
-  addTransaction,
-} from "../services/productService.js"; // Replace with your actual API service
-import "../styles/modalStyles.css"; // Adjust the path if needed
-
-// Set the app element for accessibility (required for react-modal)
-Modal.setAppElement("#root");
+import { Dialog } from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Plus, Edit2, Trash2, Search, AlertCircle } from "lucide-react";
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTransaction, setNewTransaction] = useState({
+  const [search, setSearch] = useState("");
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [formData, setFormData] = useState({
     productId: "",
     quantity: "",
     totalPrice: "",
+    customerName: "",
+    paymentMethod: "cash",
+    status: "completed",
   });
-  const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch all transactions on page load
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const transactionData = await getTransactionsByProduct();
-        setTransactions(transactionData);
-      } catch (error) {
-        console.error("Error fetching transactions", error);
-        setError("Failed to load transactions. Please try again.");
-      }
-    };
     fetchTransactions();
   }, []);
 
-  // Open Modal to add transaction
-  const openModal = () => {
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const data = await getTransactionsByProduct();
+      setTransactions(data);
+    } catch (err) {
+      setError("Failed to load transactions");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (selectedTransaction) {
+        await updateTransaction(selectedTransaction.id, formData);
+      } else {
+        await addTransaction(formData);
+      }
+      fetchTransactions();
+      handleCloseModal();
+    } catch (err) {
+      setError("Failed to save transaction");
+    }
+  };
+
+  const handleOpenModal = (transaction = null) => {
+    setSelectedTransaction(transaction);
+    setFormData(
+      transaction || {
+        productId: "",
+        quantity: "",
+        totalPrice: "",
+        customerName: "",
+        paymentMethod: "cash",
+        status: "completed",
+      },
+    );
     setIsModalOpen(true);
   };
 
-  // Close Modal
-  const closeModal = () => {
+  const handleCloseModal = () => {
     setIsModalOpen(false);
-    setNewTransaction({
-      productId: "",
-      quantity: "",
-      totalPrice: "",
-    });
+    setSelectedTransaction(null);
+    setError("");
   };
 
-  // Handle adding a new transaction
-  const handleAddTransaction = async () => {
-    setError(""); // Clear previous errors
-    if (
-      !newTransaction.productId ||
-      !newTransaction.quantity ||
-      !newTransaction.totalPrice
-    ) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const addedTransaction = await addTransaction(newTransaction);
-      setTransactions([...transactions, addedTransaction]);
-      closeModal(); // Close the modal after successful transaction addition
-    } catch (error) {
-      console.error("Error adding transaction", error);
-      setError("Failed to add transaction. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Handle deleting a transaction
-  const handleDeleteTransaction = async (id) => {
-    try {
-      await deleteTransaction(id);
-      setTransactions(
-        transactions.filter((transaction) => transaction.id !== id),
-      );
-    } catch (error) {
-      console.error("Error deleting transaction", error);
-      setError("Failed to delete transaction.");
-    }
-  };
-
-  // Handle updating a transaction (e.g., editing the transaction)
-  const handleUpdateTransaction = async (transaction) => {
-    setNewTransaction(transaction);
-    openModal(); // Open modal with pre-filled values for editing
-  };
+  const filteredTransactions = transactions.filter(
+    (t) =>
+      t.productId.toLowerCase().includes(search.toLowerCase()) ||
+      t.customerName?.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
-    <div className="container mx-auto p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Sales</h1>
-
-      {/* Button to Add Sale */}
-      <button
-        onClick={openModal}
-        className="bg-blue-600 text-white px-6 py-3 rounded-lg mb-6"
-      >
-        Add New Sale
-      </button>
-
-      {/* Error Message */}
-      {error && <div className="text-red-600 mb-4">{error}</div>}
-
-      {/* Transactions List */}
-      <div className="bg-white shadow-lg rounded-lg p-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          Sales List
-        </h2>
-
-        {transactions.length === 0 ? (
-          <p className="text-gray-500">No sales recorded.</p>
-        ) : (
-          <table className="min-w-full table-auto">
-            <thead>
-              <tr className="border-b">
-                <th className="p-4 text-left text-sm font-medium text-gray-700">
-                  Product ID
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-gray-700">
-                  Quantity
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-gray-700">
-                  Total Price
-                </th>
-                <th className="p-4 text-left text-sm font-medium text-gray-700">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((transaction) => (
-                <tr key={transaction.id} className="border-b">
-                  <td className="p-4 text-sm text-gray-700">
-                    {transaction.productId}
-                  </td>
-                  <td className="p-4 text-sm text-gray-700">
-                    {transaction.quantity}
-                  </td>
-                  <td className="p-4 text-sm text-gray-700">
-                    {transaction.totalPrice}
-                  </td>
-                  <td className="p-4 text-sm text-gray-700">
-                    <button
-                      onClick={() => handleUpdateTransaction(transaction)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded-lg mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteTransaction(transaction.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded-lg"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+    <div className="container mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Sales Management</h1>
+        <Button onClick={() => handleOpenModal()} className="bg-blue-600">
+          <Plus className="mr-2 h-4 w-4" /> New Sale
+        </Button>
       </div>
 
-      {/* Modal for Adding or Editing Transaction */}
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        contentLabel="Add/Edit Sale"
-        className="modal-content"
-        overlayClassName="modal-overlay"
-        shouldCloseOnOverlayClick={true}
-      >
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          {newTransaction.productId ? "Edit Transaction" : "Add New Sale"}
-        </h2>
-
-        {error && <div className="text-red-600 mb-4">{error}</div>}
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-gray-700">Product ID</label>
-            <input
-              type="text"
-              placeholder="Enter Product ID"
-              value={newTransaction.productId}
-              onChange={(e) =>
-                setNewTransaction({
-                  ...newTransaction,
-                  productId: e.target.value,
-                })
-              }
-              className="w-full p-3 border border-gray-300 rounded-md"
+      {/* Search and Filters */}
+      <Card className="mb-6">
+        <CardContent className="flex items-center space-x-4 py-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search transactions..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
             />
           </div>
+          <Button variant="outline">Filter</Button>
+          <Button variant="outline">Export</Button>
+        </CardContent>
+      </Card>
 
-          <div>
-            <label className="block text-gray-700">Quantity</label>
-            <input
-              type="number"
-              placeholder="Enter Quantity"
-              value={newTransaction.quantity}
-              onChange={(e) =>
-                setNewTransaction({
-                  ...newTransaction,
-                  quantity: e.target.value,
-                })
-              }
-              className="w-full p-3 border border-gray-300 rounded-md"
-            />
+      {/* Transactions Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-4">Loading...</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="px-4 py-3 text-left">ID</th>
+                    <th className="px-4 py-3 text-left">Customer</th>
+                    <th className="px-4 py-3 text-left">Product</th>
+                    <th className="px-4 py-3 text-left">Quantity</th>
+                    <th className="px-4 py-3 text-left">Total</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTransactions.map((transaction) => (
+                    <tr key={transaction.id} className="border-b">
+                      <td className="px-4 py-3">{transaction.id}</td>
+                      <td className="px-4 py-3">{transaction.customerName}</td>
+                      <td className="px-4 py-3">{transaction.productId}</td>
+                      <td className="px-4 py-3">{transaction.quantity}</td>
+                      <td className="px-4 py-3">${transaction.totalPrice}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            transaction.status === "completed"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleOpenModal(transaction)}
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-600"
+                            onClick={() => handleDelete(transaction.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Add/Edit Modal */}
+      <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-xl font-semibold mb-4">
+              {selectedTransaction ? "Edit Sale" : "New Sale"}
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-md flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2" />
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Customer Name
+                </label>
+                <Input
+                  value={formData.customerName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, customerName: e.target.value })
+                  }
+                  placeholder="Enter customer name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Product ID
+                </label>
+                <Input
+                  value={formData.productId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, productId: e.target.value })
+                  }
+                  placeholder="Enter product ID"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Quantity
+                </label>
+                <Input
+                  type="number"
+                  value={formData.quantity}
+                  onChange={(e) =>
+                    setFormData({ ...formData, quantity: e.target.value })
+                  }
+                  placeholder="Enter quantity"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Total Price
+                </label>
+                <Input
+                  type="number"
+                  value={formData.totalPrice}
+                  onChange={(e) =>
+                    setFormData({ ...formData, totalPrice: e.target.value })
+                  }
+                  placeholder="Enter total price"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <Button variant="outline" onClick={handleCloseModal}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-blue-600">
+                  {selectedTransaction ? "Update" : "Create"} Sale
+                </Button>
+              </div>
+            </form>
           </div>
-
-          <div>
-            <label className="block text-gray-700">Total Price</label>
-            <input
-              type="number"
-              placeholder="Enter Total Price"
-              value={newTransaction.totalPrice}
-              onChange={(e) =>
-                setNewTransaction({
-                  ...newTransaction,
-                  totalPrice: e.target.value,
-                })
-              }
-              className="w-full p-3 border border-gray-300 rounded-md"
-            />
-          </div>
-
-          <button
-            onClick={handleAddTransaction}
-            disabled={isSubmitting}
-            className={`w-full py-3 text-white font-semibold rounded-md ${
-              isSubmitting ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {isSubmitting
-              ? "Submitting..."
-              : newTransaction.productId
-                ? "Update Transaction"
-                : "Add Transaction"}
-          </button>
         </div>
-      </Modal>
+      </Dialog>
     </div>
   );
 };
