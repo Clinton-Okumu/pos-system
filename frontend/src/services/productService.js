@@ -1,41 +1,54 @@
-import axiosInstance from "./axiosInstance"; // Import the configured axios instance
+import axiosInstance from "./axiosInstance";
 
-// Base URL for the API is already set in axiosInstance
-
-// Fetch all transactions
-export const getTransactions = async () => {
+export const createProduct = async (productData) => {
   try {
-    const response = await axiosInstance.get("/api/transactions"); // Use axiosInstance here
-    return response.data; // Return the transactions data
+    const response = await axiosInstance.post("/products/", productData);
+    return response.data;
   } catch (error) {
-    console.error("Error fetching transactions", error);
+    console.error("Error creating product:", error);
     throw error;
   }
 };
 
-// Add a new transaction
-export const addTransaction = async (transactionData) => {
+export const getProducts = async () => {
   try {
-    const response = await axiosInstance.post(
-      "/api/transactions",
-      transactionData,
-    ); // Use axiosInstance here
-    return response.data; // Return the added transaction
+    const response = await axiosInstance.get("/products/");
+    return response.data;
   } catch (error) {
-    console.error("Error adding transaction", error);
+    console.error("Error getting products:", error);
     throw error;
   }
 };
 
-// Get transactions by product ID
-export const getTransactionsByProduct = async (productId) => {
+export const getProductsById = async (productId) => {
   try {
-    const response = await axiosInstance.get(
-      `/api/transactions/by-product/${productId}`,
-    ); // Use axiosInstance here
-    return response.data; // Return the filtered transactions by product
+    const response = await axiosInstance.get(`/products/${productId}`);
+    return response.data;
   } catch (error) {
-    console.error("Error fetching transactions by product", error);
+    console.error("Error getting product by id:", error);
+    throw error;
+  }
+};
+
+export const updateProduct = async (productId, productData) => {
+  try {
+    const response = await axiosInstance.put(
+      `/products/${productId}`,
+      productData,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating product", error);
+    throw error;
+  }
+};
+
+export const deleteProduct = async (productId) => {
+  try {
+    const response = await axiosInstance.delete(`/products/${productId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting product", error);
     throw error;
   }
 };
