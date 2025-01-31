@@ -10,7 +10,7 @@ export const createProduct = async (productData) => {
   }
 };
 
-export const getProducts = async () => {
+export const getAllProducts = async () => {
   try {
     const response = await axiosInstance.get("/products/");
     return response.data;

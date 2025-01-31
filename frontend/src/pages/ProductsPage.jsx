@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -8,15 +8,15 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Plus, Search, Trash2 } from "lucide-react";
+import {
+  createProduct,
+  getAllProducts,
+  deleteProduct,
+} from "../services/productService"; // Import the API functions
 
 const ProductsPage = () => {
-  const initialProducts = [
-    { id: 1, name: "Cornflakes", price: 5, stock: 20, category: "Cereal" },
-    { id: 2, name: "Rice Crispies", price: 6, stock: 15, category: "Cereal" },
-    { id: 3, name: "Cheerios", price: 7, stock: 8, category: "Cereal" },
-  ];
-
-  const [products, setProducts] = useState(initialProducts);
+  // State variables
+  const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -25,8 +25,28 @@ const ProductsPage = () => {
   });
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleAddProduct = () => {
+  // Fetch products on component mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const products = await getAllProducts();
+        setProducts(products);
+      } catch (error) {
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Handle adding a new product
+  const handleAddProduct = async () => {
     if (
       !newProduct.name ||
       !newProduct.price ||
@@ -35,29 +55,54 @@ const ProductsPage = () => {
     ) {
       return;
     }
-    const updatedProducts = [
-      ...products,
-      { ...newProduct, id: products.length + 1 },
-    ];
-    setProducts(updatedProducts);
-    setNewProduct({ name: "", price: "", stock: "", category: "" });
-    setShowAddForm(false);
+
+    setLoading(true);
+    try {
+      await createProduct(newProduct);
+      const updatedProducts = await getAllProducts();
+      setProducts(updatedProducts);
+      setNewProduct({ name: "", price: "", stock: "", category: "" });
+      setShowAddForm(false);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Handle deleting a product
+  const handleDeleteProduct = async (productId) => {
+    setLoading(true);
+    try {
+      await deleteProduct(productId);
+      const updatedProducts = await getAllProducts();
+      setProducts(updatedProducts);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle search input change
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
   };
 
+  // Filter products based on search query
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const handleDeleteProduct = (productId) => {
-    const updatedProducts = products.filter(
-      (product) => product.id !== productId,
-    );
-    setProducts(updatedProducts);
-  };
+  // Display loading state
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Display error state
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -86,7 +131,7 @@ const ProductsPage = () => {
 
         {/* Add Product Form */}
         {showAddForm && (
-          <Card className="mb-8">
+          <Card className="mb-8 bg-white">
             <CardHeader>
               <h2 className="text-xl font-semibold">Add New Product</h2>
             </CardHeader>
@@ -138,7 +183,7 @@ const ProductsPage = () => {
           {filteredProducts.map((product) => (
             <Card
               key={product.id}
-              className="hover:shadow-lg transition-shadow"
+              className="hover:shadow-lg transition-shadow bg-white"
             >
               <CardContent className="pt-6">
                 <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
