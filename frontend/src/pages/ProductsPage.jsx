@@ -19,9 +19,10 @@ const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: "",
-    price: "",
-    stock: "",
-    category: "",
+    description: "", // Added to match backend schema
+    price: "", // Changed to number
+    quantity: "", // Changed from "stock" to "quantity"
+    image_url: "", // Added to match backend schema
   });
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -50,8 +51,7 @@ const ProductsPage = () => {
     if (
       !newProduct.name ||
       !newProduct.price ||
-      !newProduct.stock ||
-      !newProduct.category
+      !newProduct.quantity // Changed from "stock" to "quantity"
     ) {
       return;
     }
@@ -61,7 +61,13 @@ const ProductsPage = () => {
       await createProduct(newProduct);
       const updatedProducts = await getAllProducts();
       setProducts(updatedProducts);
-      setNewProduct({ name: "", price: "", stock: "", category: "" });
+      setNewProduct({
+        name: "",
+        description: "",
+        price: 0,
+        quantity: 0,
+        image_url: "",
+      });
       setShowAddForm(false);
     } catch (error) {
       setError(error);
@@ -149,23 +155,37 @@ const ProductsPage = () => {
                 placeholder="Price"
                 value={newProduct.price}
                 onChange={(e) =>
-                  setNewProduct({ ...newProduct, price: e.target.value })
+                  setNewProduct({
+                    ...newProduct,
+                    price: parseFloat(e.target.value),
+                  })
                 }
               />
               <Input
                 type="number"
-                placeholder="Stock Quantity"
-                value={newProduct.stock}
+                placeholder="Quantity"
+                value={newProduct.quantity}
                 onChange={(e) =>
-                  setNewProduct({ ...newProduct, stock: e.target.value })
+                  setNewProduct({
+                    ...newProduct,
+                    quantity: parseInt(e.target.value),
+                  })
                 }
               />
               <Input
                 type="text"
-                placeholder="Category"
-                value={newProduct.category}
+                placeholder="Description"
+                value={newProduct.description}
                 onChange={(e) =>
-                  setNewProduct({ ...newProduct, category: e.target.value })
+                  setNewProduct({ ...newProduct, description: e.target.value })
+                }
+              />
+              <Input
+                type="text"
+                placeholder="Image URL"
+                value={newProduct.image_url}
+                onChange={(e) =>
+                  setNewProduct({ ...newProduct, image_url: e.target.value })
                 }
               />
             </CardContent>
@@ -195,10 +215,10 @@ const ProductsPage = () => {
                     ${product.price}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Category: {product.category}
+                    Description: {product.description}
                   </p>
                   <p className="text-sm text-gray-500">
-                    In Stock: {product.stock} units
+                    Quantity: {product.quantity} units
                   </p>
                 </div>
               </CardContent>
