@@ -7,27 +7,32 @@ import {
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2, Edit } from "lucide-react";
 import {
   createProduct,
   getAllProducts,
   deleteProduct,
-} from "../services/productService"; // Import the API functions
+} from "../services/productService";
+import EditProductModal from "../components/EditProductModal"; // Import the modal component
 
 const ProductsPage = () => {
   // State variables
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: "",
-    description: "", // Added to match backend schema
-    price: "", // Changed to number
-    quantity: "", // Changed from "stock" to "quantity"
-    image_url: "", // Added to match backend schema
+    description: "",
+    price: "",
+    quantity: "",
+    image_url: "",
   });
   const [search, setSearch] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Modal-related state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   // Fetch products on component mount
   useEffect(() => {
@@ -42,20 +47,14 @@ const ProductsPage = () => {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 
   // Handle adding a new product
   const handleAddProduct = async () => {
-    if (
-      !newProduct.name ||
-      !newProduct.price ||
-      !newProduct.quantity // Changed from "stock" to "quantity"
-    ) {
+    if (!newProduct.name || !newProduct.price || !newProduct.quantity) {
       return;
     }
-
     setLoading(true);
     try {
       await createProduct(newProduct);
@@ -110,11 +109,36 @@ const ProductsPage = () => {
     return <div>Error: {error.message}</div>;
   }
 
+  // Function to open the modal with the selected product
+  const handleEditClick = (product) => {
+    setIsModalOpen(true);
+    setSelectedProduct(product);
+  };
+
+  // Function to close the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
+
+  // Function to handle saving the updated product
+  const handleSaveProduct = async (updatedProduct) => {
+    try {
+      const updatedProducts = products.map((product) =>
+        product.id === updatedProduct.id ? updatedProduct : product,
+      );
+      setProducts(updatedProducts);
+    } catch (error) {
+      setError(error);
+    } finally {
+      handleCloseModal();
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-extrabold text-gray-800 mb-6">Products</h1>
-
         {/* Search and Add Product */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div className="relative w-full sm:w-64">
@@ -134,7 +158,6 @@ const ProductsPage = () => {
             <Plus className="h-4 w-4 mr-2" /> Add New Product
           </Button>
         </div>
-
         {/* Add Product Form */}
         {showAddForm && (
           <Card className="mb-8 bg-white">
@@ -197,7 +220,6 @@ const ProductsPage = () => {
             </CardFooter>
           </Card>
         )}
-
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
@@ -212,21 +234,31 @@ const ProductsPage = () => {
                 <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                 <div className="space-y-2">
                   <p className="text-2xl font-bold text-gray-900">
-                    ${product.price}
+                    ksh.{product.price}
                   </p>
                   <p className="text-sm text-gray-500">
                     Description: {product.description}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Quantity: {product.quantity} units
+                    Quantity: {product.quantity} kgs
                   </p>
                 </div>
               </CardContent>
               <CardFooter className="justify-end">
                 <Button
                   variant="ghost"
+                  className="text-blue-600 hover:text-blue-400 hover:bg-blue-50"
+                  onClick={() => handleEditClick(product)} // Open the modal
+                  aria-label="Edit product"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
                   className="text-red-600 hover:text-red-800 hover:bg-red-50"
                   onClick={() => handleDeleteProduct(product.id)}
+                  aria-label="Delete product"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
@@ -235,6 +267,14 @@ const ProductsPage = () => {
             </Card>
           ))}
         </div>
+        {/* Render the modal conditionally */}
+        {isModalOpen && selectedProduct && (
+          <EditProductModal
+            product={selectedProduct}
+            onClose={handleCloseModal}
+            onSave={handleSaveProduct}
+          />
+        )}
       </div>
     </div>
   );

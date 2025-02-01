@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell, LogOut } from "lucide-react";
 import { logoutUser } from "../services/authService.js";
-import PropTypes from "prop-types"; // Import PropTypes
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -53,11 +52,6 @@ const Navbar = () => {
       </div>
     </div>
   );
-};
-
-// PropTypes validation
-Navbar.propTypes = {
-  logoutUser: PropTypes.func.isRequired, // Validate logoutUser as a required function
 };
 
 export default Navbar;
