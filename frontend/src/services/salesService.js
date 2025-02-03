@@ -1,4 +1,4 @@
-import { axiosInstance } from "./axiosInstance.js";
+import axiosInstance from "./axiosInstance.js";
 
 export const createTransaction = async (transactionData) => {
   try {

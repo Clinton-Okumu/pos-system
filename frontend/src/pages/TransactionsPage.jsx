@@ -9,6 +9,13 @@ import {
 import { Input } from "../components/ui/Input.jsx";
 import { Button } from "../components/ui/Button.jsx";
 import { Plus, Edit2, Trash2, Search, AlertCircle } from "lucide-react";
+import {
+  getAllTransactions,
+  getTransactionsByProduct,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+} from "../services/salesService.js"; // Ensure correct API import
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
@@ -34,7 +41,7 @@ const TransactionsPage = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const data = await getTransactionsByProduct();
+      const data = await getAllTransactions(); // Fetch all transactions
       setTransactions(data);
     } catch (err) {
       setError("Failed to load transactions");
@@ -49,12 +56,24 @@ const TransactionsPage = () => {
       if (selectedTransaction) {
         await updateTransaction(selectedTransaction.id, formData);
       } else {
-        await addTransaction(formData);
+        await createTransaction(formData);
       }
       fetchTransactions();
       handleCloseModal();
     } catch (err) {
       setError("Failed to save transaction");
+    }
+  };
+
+  const handleDelete = async (transactionId) => {
+    if (!window.confirm("Are you sure you want to delete this transaction?"))
+      return;
+
+    try {
+      await deleteTransaction(transactionId);
+      fetchTransactions();
+    } catch (err) {
+      setError("Failed to delete transaction");
     }
   };
 
@@ -81,7 +100,7 @@ const TransactionsPage = () => {
 
   const filteredTransactions = transactions.filter(
     (t) =>
-      t.productId.toLowerCase().includes(search.toLowerCase()) ||
+      t.productId.toString().toLowerCase().includes(search.toLowerCase()) ||
       t.customerName?.toLowerCase().includes(search.toLowerCase()),
   );
 
@@ -196,59 +215,13 @@ const TransactionsPage = () => {
                 </div>
               )}
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Customer Name
-                </label>
-                <Input
-                  value={formData.customerName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, customerName: e.target.value })
-                  }
-                  placeholder="Enter customer name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Product ID
-                </label>
-                <Input
-                  value={formData.productId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, productId: e.target.value })
-                  }
-                  placeholder="Enter product ID"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Quantity
-                </label>
-                <Input
-                  type="number"
-                  value={formData.quantity}
-                  onChange={(e) =>
-                    setFormData({ ...formData, quantity: e.target.value })
-                  }
-                  placeholder="Enter quantity"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Total Price
-                </label>
-                <Input
-                  type="number"
-                  value={formData.totalPrice}
-                  onChange={(e) =>
-                    setFormData({ ...formData, totalPrice: e.target.value })
-                  }
-                  placeholder="Enter total price"
-                />
-              </div>
+              <Input
+                placeholder="Customer Name"
+                value={formData.customerName}
+                onChange={(e) =>
+                  setFormData({ ...formData, customerName: e.target.value })
+                }
+              />
 
               <div className="flex justify-end space-x-3">
                 <Button variant="outline" onClick={handleCloseModal}>
