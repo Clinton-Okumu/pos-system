@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
 from app.apps.transactions.models import Transaction
 from app.apps.products.models import Product
-from app.apps.transactions.schemas import TransactionCreate
+from app.apps.transactions.schemas import (
+    TransactionCreate,
+    TransactionUpdate,
+)
 
 
 def create_transaction(db: Session, transaction_data: TransactionCreate):
@@ -44,3 +47,27 @@ def get_all_transactions(db: Session):
 def get_transactions_by_product(db: Session, product_id: int):
     # Fetch transactions for a specific product
     return db.query(Transaction).filter(Transaction.product_id == product_id).all()
+
+
+def update_transaction(
+    db: Session, transaction_id: int, transaction_data: TransactionUpdate
+):
+    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+    if not transaction:
+        raise ValueError("Transaction not found")
+
+    for key, value in transaction_data.model_dump(exclude_unset=True).items():
+        setattr(transaction, key, value)
+
+    db.commit()
+    db.refresh(transaction)
+    return transaction
+
+
+def delete_transaction(db: Session, transaction_id: int):
+    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+    if not transaction:
+        raise ValueError("Transaction not found")
+
+    db.delete(transaction)
+    db.commit()

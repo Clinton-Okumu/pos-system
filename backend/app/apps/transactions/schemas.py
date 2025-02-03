@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 class TransactionCreate(BaseModel):
@@ -16,3 +17,9 @@ class TransactionResponse(BaseModel):
 
     class Config:
         from_attributes = True  # Enable ORM-to-Pydantic conversion
+
+
+class TransactionUpdate(BaseModel):
+    product_id: Optional[int] = None
+    quantity: Optional[int] = None
+    total_price: Optional[float] = None
