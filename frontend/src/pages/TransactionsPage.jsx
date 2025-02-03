@@ -11,14 +11,15 @@ import { Button } from "../components/ui/Button.jsx";
 import { Plus, Edit2, Trash2, Search, AlertCircle } from "lucide-react";
 import {
   getAllTransactions,
-  getTransactionsByProduct,
   createTransaction,
   updateTransaction,
   deleteTransaction,
-} from "../services/salesService.js"; // Ensure correct API import
+} from "../services/salesService.js"; // API service
+import { getAllProducts } from "../services/productService.js"; // Fetch available products
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
+  const [products, setProducts] = useState([]); // Store available products
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -29,24 +30,33 @@ const TransactionsPage = () => {
     productId: "",
     quantity: "",
     totalPrice: "",
-    customerName: "",
     paymentMethod: "cash",
     status: "completed",
   });
 
   useEffect(() => {
     fetchTransactions();
+    fetchProducts();
   }, []);
 
   const fetchTransactions = async () => {
     try {
       setLoading(true);
-      const data = await getAllTransactions(); // Fetch all transactions
+      const data = await getAllTransactions();
       setTransactions(data);
     } catch (err) {
       setError("Failed to load transactions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const data = await getAllProducts();
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to load products:", err);
     }
   };
 
@@ -84,7 +94,6 @@ const TransactionsPage = () => {
         productId: "",
         quantity: "",
         totalPrice: "",
-        customerName: "",
         paymentMethod: "cash",
         status: "completed",
       },
@@ -98,10 +107,8 @@ const TransactionsPage = () => {
     setError("");
   };
 
-  const filteredTransactions = transactions.filter(
-    (t) =>
-      t.productId.toString().toLowerCase().includes(search.toLowerCase()) ||
-      t.customerName?.toLowerCase().includes(search.toLowerCase()),
+  const filteredTransactions = transactions.filter((t) =>
+    t.productId.toString().toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -143,11 +150,10 @@ const TransactionsPage = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b">
-                    <th className="px-4 py-3 text-left">ID</th>
-                    <th className="px-4 py-3 text-left">Customer</th>
                     <th className="px-4 py-3 text-left">Product</th>
                     <th className="px-4 py-3 text-left">Quantity</th>
-                    <th className="px-4 py-3 text-left">Total</th>
+                    <th className="px-4 py-3 text-left">Total Price</th>
+                    <th className="px-4 py-3 text-left">Payment Method</th>
                     <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-left">Actions</th>
                   </tr>
@@ -155,11 +161,10 @@ const TransactionsPage = () => {
                 <tbody>
                   {filteredTransactions.map((transaction) => (
                     <tr key={transaction.id} className="border-b">
-                      <td className="px-4 py-3">{transaction.id}</td>
-                      <td className="px-4 py-3">{transaction.customerName}</td>
                       <td className="px-4 py-3">{transaction.productId}</td>
                       <td className="px-4 py-3">{transaction.quantity}</td>
                       <td className="px-4 py-3">${transaction.totalPrice}</td>
+                      <td className="px-4 py-3">{transaction.paymentMethod}</td>
                       <td className="px-4 py-3">
                         <span
                           className={`px-2 py-1 rounded-full text-xs ${
@@ -200,6 +205,7 @@ const TransactionsPage = () => {
       </Card>
 
       {/* Add/Edit Modal */}
+
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -208,21 +214,74 @@ const TransactionsPage = () => {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-md flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-2" />
-                  {error}
-                </div>
-              )}
-
-              <Input
-                placeholder="Customer Name"
-                value={formData.customerName}
+              {/* Product Dropdown */}
+              <label className="block text-sm font-medium">Product</label>
+              <select
+                value={formData.productId}
                 onChange={(e) =>
-                  setFormData({ ...formData, customerName: e.target.value })
+                  setFormData({ ...formData, productId: e.target.value })
+                }
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="">Select Product</option>
+                {products.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Quantity */}
+              <label className="block text-sm font-medium">Quantity</label>
+              <Input
+                type="number"
+                placeholder="Enter quantity"
+                value={formData.quantity}
+                onChange={(e) =>
+                  setFormData({ ...formData, quantity: e.target.value })
                 }
               />
 
+              {/* Total Price */}
+              <label className="block text-sm font-medium">Total Price</label>
+              <Input
+                type="number"
+                placeholder="Enter total price"
+                value={formData.totalPrice}
+                onChange={(e) =>
+                  setFormData({ ...formData, totalPrice: e.target.value })
+                }
+              />
+
+              {/* Payment Method Dropdown */}
+              <label className="block text-sm font-medium">
+                Payment Method
+              </label>
+              <select
+                value={formData.paymentMethod}
+                onChange={(e) =>
+                  setFormData({ ...formData, paymentMethod: e.target.value })
+                }
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="cash">Cash</option>
+                <option value="mpesa">M-Pesa</option>
+              </select>
+
+              {/* Status Dropdown */}
+              <label className="block text-sm font-medium">Status</label>
+              <select
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value })
+                }
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="completed">Completed</option>
+                <option value="incomplete">Incomplete</option>
+              </select>
+
+              {/* Buttons */}
               <div className="flex justify-end space-x-3">
                 <Button variant="outline" onClick={handleCloseModal}>
                   Cancel
