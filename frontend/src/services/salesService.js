@@ -2,13 +2,14 @@ import axiosInstance from "./axiosInstance.js";
 
 export const createTransaction = async (transactionData) => {
   try {
+    console.log("Sending transaction data:", transactionData); // Debug log
     const response = await axiosInstance.post(
       "/transactions/",
       transactionData,
     );
     return response.data;
   } catch (error) {
-    console.error("Error creating transaction:", error);
+    console.error("Error creating transaction:", error.response?.data); // Log server response
     throw error;
   }
 };

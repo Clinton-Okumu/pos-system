@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
+from pydantic import Field
+from datetime import timezone
 
 
 class TransactionCreate(BaseModel):
@@ -9,7 +11,9 @@ class TransactionCreate(BaseModel):
     total_price: float
     payment_method: str  # e.g., "cash" or "m-pesa"
     status: str  # e.g., "completed" or "incomplete"
-    created_at: datetime
+    created_at: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
 
 class TransactionResponse(BaseModel):
@@ -19,7 +23,9 @@ class TransactionResponse(BaseModel):
     total_price: float
     payment_method: str  # e.g., "cash" or "m-pesa"
     status: str  # e.g., "completed" or "incomplete"
-    created_at: datetime  # Timestamp of the transaction
+    created_at: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     class Config:
         from_attributes = True  # Enable ORM-to-Pydantic conversion

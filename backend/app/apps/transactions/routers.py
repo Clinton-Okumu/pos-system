@@ -16,7 +16,7 @@ router = APIRouter()
 @router.post(
     "/",
     response_model=TransactionResponse,
-    dependencies=[Depends(require_role(["shopkeeper", "admin"]))],
+    dependencies=[Depends(require_role("shopkeeper"))],
 )
 def add_transaction(transaction_data: TransactionCreate, db: Session = Depends(get_db)):
     try:

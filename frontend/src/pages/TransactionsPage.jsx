@@ -8,18 +8,18 @@ import {
 } from "../components/ui/Card.jsx";
 import { Input } from "../components/ui/Input.jsx";
 import { Button } from "../components/ui/Button.jsx";
-import { Plus, Edit2, Trash2, Search, AlertCircle } from "lucide-react";
+import { Plus, Edit2, Trash2, Search } from "lucide-react";
 import {
   getAllTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
-} from "../services/salesService.js"; // API service
-import { getAllProducts } from "../services/productService.js"; // Fetch available products
+} from "../services/salesService.js";
+import { getAllProducts } from "../services/productService.js";
 
 const TransactionsPage = () => {
   const [transactions, setTransactions] = useState([]);
-  const [products, setProducts] = useState([]); // Store available products
+  const [products, setProducts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -27,10 +27,10 @@ const TransactionsPage = () => {
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    productId: "",
+    product_id: "",
     quantity: "",
-    totalPrice: "",
-    paymentMethod: "cash",
+    total_price: "",
+    payment_method: "cash",
     status: "completed",
   });
 
@@ -38,6 +38,12 @@ const TransactionsPage = () => {
     fetchTransactions();
     fetchProducts();
   }, []);
+
+  // Create a lookup object for product names
+  const productLookup = products.reduce((acc, product) => {
+    acc[product.id] = product.name;
+    return acc;
+  }, {});
 
   const fetchTransactions = async () => {
     try {
@@ -91,10 +97,10 @@ const TransactionsPage = () => {
     setSelectedTransaction(transaction);
     setFormData(
       transaction || {
-        productId: "",
+        product_id: "",
         quantity: "",
-        totalPrice: "",
-        paymentMethod: "cash",
+        total_price: "",
+        payment_method: "cash",
         status: "completed",
       },
     );
@@ -108,7 +114,7 @@ const TransactionsPage = () => {
   };
 
   const filteredTransactions = transactions.filter((t) =>
-    t.productId.toString().toLowerCase().includes(search.toLowerCase()),
+    t.product_id.toString().toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -147,11 +153,11 @@ const TransactionsPage = () => {
             <div className="text-center py-4">Loading...</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full bg-white">
                 <thead>
                   <tr className="border-b">
                     <th className="px-4 py-3 text-left">Product</th>
-                    <th className="px-4 py-3 text-left">Quantity</th>
+                    <th className="px-4 py-3 text-left">Quantity(kgs)</th>
                     <th className="px-4 py-3 text-left">Total Price</th>
                     <th className="px-4 py-3 text-left">Payment Method</th>
                     <th className="px-4 py-3 text-left">Status</th>
@@ -161,10 +167,17 @@ const TransactionsPage = () => {
                 <tbody>
                   {filteredTransactions.map((transaction) => (
                     <tr key={transaction.id} className="border-b">
-                      <td className="px-4 py-3">{transaction.productId}</td>
+                      <td className="px-4 py-3">
+                        {productLookup[transaction.product_id] ||
+                          "Unknown Product"}
+                      </td>
                       <td className="px-4 py-3">{transaction.quantity}</td>
-                      <td className="px-4 py-3">${transaction.totalPrice}</td>
-                      <td className="px-4 py-3">{transaction.paymentMethod}</td>
+                      <td className="px-4 py-3">
+                        ksh. {transaction.total_price}
+                      </td>
+                      <td className="px-4 py-3">
+                        {transaction.payment_method}
+                      </td>
                       <td className="px-4 py-3">
                         <span
                           className={`px-2 py-1 rounded-full text-xs ${
@@ -205,7 +218,6 @@ const TransactionsPage = () => {
       </Card>
 
       {/* Add/Edit Modal */}
-
       <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
@@ -217,9 +229,9 @@ const TransactionsPage = () => {
               {/* Product Dropdown */}
               <label className="block text-sm font-medium">Product</label>
               <select
-                value={formData.productId}
+                value={formData.product_id}
                 onChange={(e) =>
-                  setFormData({ ...formData, productId: e.target.value })
+                  setFormData({ ...formData, product_id: e.target.value })
                 }
                 className="w-full p-2 border rounded-md"
               >
@@ -247,9 +259,9 @@ const TransactionsPage = () => {
               <Input
                 type="number"
                 placeholder="Enter total price"
-                value={formData.totalPrice}
+                value={formData.total_price}
                 onChange={(e) =>
-                  setFormData({ ...formData, totalPrice: e.target.value })
+                  setFormData({ ...formData, total_price: e.target.value })
                 }
               />
 
@@ -258,9 +270,9 @@ const TransactionsPage = () => {
                 Payment Method
               </label>
               <select
-                value={formData.paymentMethod}
+                value={formData.payment_method}
                 onChange={(e) =>
-                  setFormData({ ...formData, paymentMethod: e.target.value })
+                  setFormData({ ...formData, payment_method: e.target.value })
                 }
                 className="w-full p-2 border rounded-md"
               >
