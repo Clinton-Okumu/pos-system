@@ -14,11 +14,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     return payload
 
 
-def require_role(role: str):
-    """Dependency to check user role."""
+def require_role(*roles: str):
+    """Dependency to check if user has any of the allowed roles."""
 
     def role_checker(user=Depends(get_current_user)):
-        if user.get("role") != role:
+        if user.get("role") not in roles:
             raise HTTPException(status_code=403, detail="Insufficient privileges")
         return user
 

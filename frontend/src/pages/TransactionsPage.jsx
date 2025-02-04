@@ -144,7 +144,7 @@ const TransactionsPage = () => {
       </Card>
 
       {/* Transactions Table */}
-      <Card>
+      <Card className="bg-white">
         <CardHeader>
           <CardTitle>Sales History</CardTitle>
         </CardHeader>
