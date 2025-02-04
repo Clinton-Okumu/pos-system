@@ -1,15 +1,15 @@
 import axiosInstance from "./axiosInstance.js";
 
-export const createTransaction = async (transactionData) => {
+export const createTransaction = async (productData) => {
   try {
-    console.log("Sending transaction data:", transactionData); // Debug log
-    const response = await axiosInstance.post(
-      "/transactions/",
-      transactionData,
-    );
+    console.log("Sending product data:", JSON.stringify(productData, null, 2));
+    const response = await axiosInstance.post("/products/", productData);
     return response.data;
   } catch (error) {
-    console.error("Error creating transaction:", error.response?.data); // Log server response
+    console.error(
+      "Error creating product:",
+      error.response?.data || error.message,
+    );
     throw error;
   }
 };

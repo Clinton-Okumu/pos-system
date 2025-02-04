@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Literal
+from typing import Optional
 
 
 class ProductCreate(BaseModel):
@@ -8,8 +8,6 @@ class ProductCreate(BaseModel):
     price: float = Field(..., gt=0)  # Price must be greater than 0
     quantity: int = Field(..., ge=0)  # Quantity must be non-negative
     image_url: Optional[str]
-    payment_method: Literal["cash", "m-pesa"]  # Restrict to these choices
-    status: Literal["complete", "incomplete"]
 
 
 class ProductUpdate(BaseModel):
@@ -18,8 +16,6 @@ class ProductUpdate(BaseModel):
     price: Optional[float]
     quantity: Optional[int]
     image_url: Optional[str]
-    payment_method: Literal["cash", "m-pesa"]  # Restrict to these choices
-    status: Literal["complete", "incomplete"]
 
 
 class ProductResponse(BaseModel):
