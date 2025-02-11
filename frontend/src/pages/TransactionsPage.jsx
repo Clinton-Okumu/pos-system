@@ -299,18 +299,16 @@ const TransactionsPage = () => {
                 <option value="pending">Pending</option>
               </select>
 
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4 mt-4">
+              {/* Submit Buttons */}
+              <div className="flex justify-between items-center mt-4">
                 <Button variant="outline" onClick={handleCloseModal}>
                   Cancel
                 </Button>
                 <Button type="submit" className="bg-blue-600">
-                  {selectedTransaction ? "Update Sale" : "Create Sale"}
+                  Save
                 </Button>
               </div>
             </form>
-
-            {error && <div className="mt-4 text-red-600 text-sm">{error}</div>}
           </div>
         </div>
       </Dialog>
