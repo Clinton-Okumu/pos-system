@@ -27,7 +27,7 @@ const TransactionsPage = () => {
   const [error, setError] = useState("");
 
   const [formData, setFormData] = useState({
-    product_id: "",
+    product_id: "", // Ensure this is a number when possible
     quantity: "",
     total_price: "",
     payment_method: "cash",
@@ -39,7 +39,6 @@ const TransactionsPage = () => {
     fetchProducts();
   }, []);
 
-  // Create a lookup object for product names
   const productLookup = products.reduce((acc, product) => {
     acc[product.id] = product.name;
     return acc;
@@ -62,12 +61,16 @@ const TransactionsPage = () => {
       const data = await getAllProducts();
       setProducts(data);
     } catch (err) {
-      console.error("Failed to load products:", err);
+      setError("Failed to load products");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.product_id || !formData.quantity || !formData.total_price) {
+      setError("Please fill in all the required fields");
+      return;
+    }
     try {
       if (selectedTransaction) {
         await updateTransaction(selectedTransaction.id, formData);
@@ -231,7 +234,10 @@ const TransactionsPage = () => {
               <select
                 value={formData.product_id}
                 onChange={(e) =>
-                  setFormData({ ...formData, product_id: e.target.value })
+                  setFormData({
+                    ...formData,
+                    product_id: parseInt(e.target.value),
+                  })
                 }
                 className="w-full p-2 border rounded-md"
               >
@@ -265,7 +271,7 @@ const TransactionsPage = () => {
                 }
               />
 
-              {/* Payment Method Dropdown */}
+              {/* Payment Method */}
               <label className="block text-sm font-medium">
                 Payment Method
               </label>
@@ -277,10 +283,10 @@ const TransactionsPage = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="cash">Cash</option>
-                <option value="mpesa">M-Pesa</option>
+                <option value="credit">Credit</option>
               </select>
 
-              {/* Status Dropdown */}
+              {/* Status */}
               <label className="block text-sm font-medium">Status</label>
               <select
                 value={formData.status}
@@ -290,19 +296,21 @@ const TransactionsPage = () => {
                 className="w-full p-2 border rounded-md"
               >
                 <option value="completed">Completed</option>
-                <option value="incomplete">Incomplete</option>
+                <option value="pending">Pending</option>
               </select>
 
-              {/* Buttons */}
-              <div className="flex justify-end space-x-3">
+              {/* Submit Button */}
+              <div className="flex justify-end space-x-4 mt-4">
                 <Button variant="outline" onClick={handleCloseModal}>
                   Cancel
                 </Button>
                 <Button type="submit" className="bg-blue-600">
-                  {selectedTransaction ? "Update" : "Create"} Sale
+                  {selectedTransaction ? "Update Sale" : "Create Sale"}
                 </Button>
               </div>
             </form>
+
+            {error && <div className="mt-4 text-red-600 text-sm">{error}</div>}
           </div>
         </div>
       </Dialog>
