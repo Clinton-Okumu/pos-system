@@ -67,15 +67,24 @@ const TransactionsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.product_id || !formData.quantity || !formData.total_price) {
+
+    // Ensure quantity and total_price are numbers
+    const data = {
+      ...formData,
+      quantity: parseFloat(formData.quantity), // Convert quantity to number
+      total_price: parseFloat(formData.total_price), // Convert total_price to number
+    };
+
+    if (!data.product_id || !data.quantity || !data.total_price) {
       setError("Please fill in all the required fields");
       return;
     }
+
     try {
       if (selectedTransaction) {
-        await updateTransaction(selectedTransaction.id, formData);
+        await updateTransaction(selectedTransaction.id, data);
       } else {
-        await createTransaction(formData);
+        await createTransaction(data);
       }
       fetchTransactions();
       handleCloseModal();
@@ -284,6 +293,7 @@ const TransactionsPage = () => {
               >
                 <option value="cash">Cash</option>
                 <option value="credit">Credit</option>
+                <option value="debit">Debit</option>
               </select>
 
               {/* Status */}
@@ -299,13 +309,18 @@ const TransactionsPage = () => {
                 <option value="pending">Pending</option>
               </select>
 
-              {/* Submit Buttons */}
-              <div className="flex justify-between items-center mt-4">
-                <Button variant="outline" onClick={handleCloseModal}>
+              {/* Submit Button */}
+              {error && <p className="text-red-600">{error}</p>}
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleCloseModal}
+                  className="text-gray-600"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" className="bg-blue-600">
-                  Save
+                <Button type="submit" className="bg-blue-600 text-white">
+                  {selectedTransaction ? "Update Sale" : "Create Sale"}
                 </Button>
               </div>
             </form>
