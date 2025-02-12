@@ -71,8 +71,12 @@ const TransactionsPage = () => {
     // Ensure quantity and total_price are numbers
     const data = {
       ...formData,
-      quantity: parseFloat(formData.quantity), // Convert quantity to number
-      total_price: parseFloat(formData.total_price), // Convert total_price to number
+      quantity: isNaN(parseFloat(formData.quantity))
+        ? 0
+        : parseFloat(formData.quantity),
+      total_price: isNaN(parseFloat(formData.total_price))
+        ? 0
+        : parseFloat(formData.total_price),
     };
 
     if (!data.product_id || !data.quantity || !data.total_price) {
@@ -242,12 +246,13 @@ const TransactionsPage = () => {
               <label className="block text-sm font-medium">Product</label>
               <select
                 value={formData.product_id}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const selectedProductId = parseInt(e.target.value);
                   setFormData({
                     ...formData,
-                    product_id: parseInt(e.target.value),
-                  })
-                }
+                    product_id: selectedProductId,
+                  });
+                }}
                 className="w-full p-2 border rounded-md"
               >
                 <option value="">Select Product</option>
@@ -257,7 +262,6 @@ const TransactionsPage = () => {
                   </option>
                 ))}
               </select>
-
               {/* Quantity */}
               <label className="block text-sm font-medium">Quantity</label>
               <Input
